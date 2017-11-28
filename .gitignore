@@ -13,7 +13,6 @@ src/test_trustycoin
 
 # Compilation and Qt preprocessor part
 *.qm
-Makefile
 trustycoin-qt
 
 # Resources cpp
@@ -25,5 +24,4 @@ qrc_*.cpp
 # Mac specific
 .DS_Store
 build
-
 !src/leveldb-*/Makefile

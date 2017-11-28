@@ -1,2 +1,2 @@
-debian/bin/bitcoind usr/bin
-src/bitcoind usr/lib/bitcoin
+debian/bin/trustycoind usr/bin
+src/trustycoind usr/lib/trustycoin

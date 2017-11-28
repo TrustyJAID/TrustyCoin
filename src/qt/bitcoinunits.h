@@ -4,29 +4,29 @@
 #include <QString>
 #include <QAbstractListModel>
 
-/** Bitcoin unit definitions. Encapsulates parsing and formatting
-   and serves as list model for dropdown selection boxes.
+/** Trustycoin unit definitions. Encapsulates parsing and formatting
+   and serves as list model for drop-down selection boxes.
 */
-class BitcoinUnits: public QAbstractListModel
+class TrustycoinUnits: public QAbstractListModel
 {
 public:
-    explicit BitcoinUnits(QObject *parent);
+    explicit TrustycoinUnits(QObject *parent);
 
-    /** Bitcoin units.
-      @note Source: https://en.bitcoin.it/wiki/Units . Please add only sensible ones
+    /** Trustycoin units.
+      @note Source: https://en.trustycoin.it/wiki/Units . Please add only sensible ones
      */
     enum Unit
     {
-        BTC,
-        mBTC,
-        uBTC
+        TYC,
+        mTYC,
+        uTYC
     };
 
     //! @name Static API
     //! Unit conversion and formatting
     ///@{
 
-    //! Get list of units, for dropdown box
+    //! Get list of units, for drop-down box
     static QList<Unit> availableUnits();
     //! Is unit ID valid?
     static bool valid(int unit);
@@ -49,7 +49,7 @@ public:
     ///@}
 
     //! @name AbstractListModel implementation
-    //! List model for unit dropdown selection box.
+    //! List model for unit drop-down selection box.
     ///@{
     enum RoleIndex {
         /** Unit identifier */
@@ -59,8 +59,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     ///@}
 private:
-    QList<BitcoinUnits::Unit> unitlist;
+    QList<TrustycoinUnits::Unit> unitlist;
 };
-typedef BitcoinUnits::Unit BitcoinUnit;
+typedef TrustycoinUnits::Unit TrustycoinUnit;
 
 #endif // BITCOINUNITS_H

@@ -1,13 +1,12 @@
 /*
  * W.J. van der Laan 2011-2012
  */
-#include "bitcoingui.h"
+#include "trustycoingui.h"
 #include "clientmodel.h"
 #include "walletmodel.h"
 #include "optionsmodel.h"
 #include "guiutil.h"
 #include "guiconstants.h"
-
 #include "init.h"
 #include "ui_interface.h"
 #include "qtipcserver.h"
@@ -19,9 +18,6 @@
 #include <QTranslator>
 #include <QSplashScreen>
 #include <QLibraryInfo>
-
-#include <boost/interprocess/ipc/message_queue.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 
 #if defined(BITCOIN_NEED_QT_PLUGINS) && !defined(_BITCOIN_QT_PLUGINS_INCLUDED)
 #define _BITCOIN_QT_PLUGINS_INCLUDED
@@ -35,35 +31,40 @@ Q_IMPORT_PLUGIN(qtaccessiblewidgets)
 #endif
 
 // Need a global reference for the notifications to find the GUI
-static BitcoinGUI *guiref;
+static TrustycoinGUI *guiref;
 static QSplashScreen *splashref;
 
-static void ThreadSafeMessageBox(const std::string& message, const std::string& caption, int style)
+static bool ThreadSafeMessageBox(const std::string& message, const std::string& caption, unsigned int style)
 {
     // Message from network thread
     if(guiref)
     {
         bool modal = (style & CClientUIInterface::MODAL);
-        // in case of modal message, use blocking connection to wait for user to click OK
-        QMetaObject::invokeMethod(guiref, "error",
+        bool ret = false;
+        // In case of modal message, use blocking connection to wait for user to click a button
+        QMetaObject::invokeMethod(guiref, "message",
                                    modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
                                    Q_ARG(QString, QString::fromStdString(caption)),
                                    Q_ARG(QString, QString::fromStdString(message)),
-                                   Q_ARG(bool, modal));
+                                   Q_ARG(unsigned int, style),
+                                   Q_ARG(bool*, &ret));
+        return ret;
     }
     else
     {
         printf("%s: %s\n", caption.c_str(), message.c_str());
         fprintf(stderr, "%s: %s\n", caption.c_str(), message.c_str());
+        return false;
     }
 }
 
-static bool ThreadSafeAskFee(int64 nFeeRequired, const std::string& strCaption)
+static bool ThreadSafeAskFee(int64 nFeeRequired)
 {
     if(!guiref)
         return false;
     if(nFeeRequired < MIN_TX_FEE || nFeeRequired <= nTransactionFee || fDaemon)
         return true;
+
     bool payFee = false;
 
     QMetaObject::invokeMethod(guiref, "askFee", GUIUtil::blockingGUIThreadConnection(),
@@ -89,6 +90,7 @@ static void InitMessage(const std::string &message)
         splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,200));
         QApplication::instance()->processEvents();
     }
+    printf("init message: %s\n", message.c_str());
 }
 
 static void QueueShutdown()
@@ -101,7 +103,7 @@ static void QueueShutdown()
  */
 static std::string Translate(const char* psz)
 {
-    return QCoreApplication::translate("bitcoin-core", psz).toStdString();
+    return QCoreApplication::translate("trustycoin-core", psz).toStdString();
 }
 
 /* Handle runaway exceptions. Shows a message box with the problem and quits the program.
@@ -109,72 +111,53 @@ static std::string Translate(const char* psz)
 static void handleRunawayException(std::exception *e)
 {
     PrintExceptionContinue(e, "Runaway exception");
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occured. SmallChange can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
+    QMessageBox::critical(0, "Runaway exception", TrustycoinGUI::tr("A fatal error occurred. Trustycoin can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
     exit(1);
 }
 
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char *argv[])
 {
-// TODO: implement URI support on the Mac.
-#if !defined(MAC_OSX)
+    // Command-line options take precedence:
+    ParseParameters(argc, argv);
+
+    if(GetBoolArg("-testnet")) // Separate message queue name for testnet
+        strTrustycoinURIQueueName = BITCOINURI_QUEUE_NAME_TESTNET;
+    else
+        strTrustycoinURIQueueName = BITCOINURI_QUEUE_NAME_MAINNET;
+
     // Do this early as we don't want to bother initializing if we are just calling IPC
-    for (int i = 1; i < argc; i++)
-    {
-        if (boost::algorithm::istarts_with(argv[i], "smallchange:"))
-        {
-            const char *strURI = argv[i];
-            try {
-                boost::interprocess::message_queue mq(boost::interprocess::open_only, BITCOINURI_QUEUE_NAME);
-                if (mq.try_send(strURI, strlen(strURI), 0))
-                    // if URI could be sent to the message queue exit here
-                    exit(0);
-                else
-                    // if URI could not be sent to the message queue do a normal Bitcoin-Qt startup
-                    break;
-            }
-            catch (boost::interprocess::interprocess_exception &ex) {
-                // don't log the "file not found" exception, because that's normal for
-                // the first start of the first instance
-                if (ex.get_error_code() != boost::interprocess::not_found_error)
-                {
-                    printf("main() - boost interprocess exception #%d: %s\n", ex.get_error_code(), ex.what());
-                    break;
-                }
-            }
-        }
-    }
-#endif
+    ipcScanRelay(argc, argv);
 
     // Internal string conversion is all UTF-8
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
 
-    Q_INIT_RESOURCE(bitcoin);
+    Q_INIT_RESOURCE(trustycoin);
     QApplication app(argc, argv);
 
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
 
-    // Command-line options take precedence:
-    ParseParameters(argc, argv);
-
-    // ... then bitcoin.conf:
+    // ... then trustycoin.conf:
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
-        fprintf(stderr, "Error: Specified directory does not exist\n");
+        // This message can not be translated, as translation is not initialized yet
+        // (which not yet possible because lang=XX can be overridden in trustycoin.conf in the data directory)
+        QMessageBox::critical(0, "Trustycoin",
+                              QString("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
         return 1;
     }
     ReadConfigFile(mapArgs, mapMultiArgs);
 
     // Application identification (must be set before OptionsModel is initialized,
     // as it is used to locate QSettings)
-    app.setOrganizationName("SmallChange");
-    app.setOrganizationDomain("we-have-no-domain-yet.nex");
+    app.setOrganizationName("Trustycoin");
+    app.setOrganizationDomain("trustycoin.org");
     if(GetBoolArg("-testnet")) // Separate UI settings for testnet
-        app.setApplicationName("smallchange-qt-testnet");
+        app.setApplicationName("Trustycoin-Qt-testnet");
     else
-        app.setApplicationName("smallchange-qt");
+        app.setApplicationName("Trustycoin-Qt");
 
     // ... then GUI settings:
     OptionsModel optionsModel;
@@ -198,11 +181,11 @@ int main(int argc, char *argv[])
     if (qtTranslator.load("qt_" + lang_territory, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         app.installTranslator(&qtTranslator);
 
-    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in bitcoin.qrc)
+    // Load e.g. trustycoin_de.qm (shortcut "de" needs to be defined in trustycoin.qrc)
     if (translatorBase.load(lang, ":/translations/"))
         app.installTranslator(&translatorBase);
 
-    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in bitcoin.qrc)
+    // Load e.g. trustycoin_de_DE.qm (shortcut "de_DE" needs to be defined in trustycoin.qrc)
     if (translator.load(lang_territory, ":/translations/"))
         app.installTranslator(&translator);
 
@@ -241,7 +224,7 @@ int main(int argc, char *argv[])
         if (GUIUtil::GetStartOnSystemStartup())
             GUIUtil::SetStartOnSystemStartup(true);
 
-        BitcoinGUI window;
+        TrustycoinGUI window;
         guiref = &window;
         if(AppInit2())
         {
@@ -269,29 +252,10 @@ int main(int argc, char *argv[])
                 {
                     window.show();
                 }
-// TODO: implement URI support on the Mac.
-#if !defined(MAC_OSX)
 
-                // Place this here as guiref has to be defined if we dont want to lose URIs
-                ipcInit();
+                // Place this here as guiref has to be defined if we don't want to lose URIs
+                ipcInit(argc, argv);
 
-                // Check for URI in argv
-                for (int i = 1; i < argc; i++)
-                {
-                    if (boost::algorithm::istarts_with(argv[i], "smallchange:"))
-                    {
-                        const char *strURI = argv[i];
-                        try {
-                            boost::interprocess::message_queue mq(boost::interprocess::open_only, BITCOINURI_QUEUE_NAME);
-                            mq.try_send(strURI, strlen(strURI), 0);
-                        }
-                        catch (boost::interprocess::interprocess_exception &ex) {
-                            printf("main() - boost interprocess exception #%d: %s\n", ex.get_error_code(), ex.what());
-                            break;
-                        }
-                    }
-                }
-#endif
                 app.exec();
 
                 window.hide();
@@ -299,7 +263,7 @@ int main(int argc, char *argv[])
                 window.setWalletModel(0);
                 guiref = 0;
             }
-            // Shutdown the core and it's threads, but don't exit Bitcoin-Qt here
+            // Shutdown the core and its threads, but don't exit Trustycoin-Qt here
             Shutdown(NULL);
         }
         else

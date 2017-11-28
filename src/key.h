@@ -1,6 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2011-2012 Litecoin Developers
+// Copyright (c) 2009-2012 The Trustycoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_KEY_H
@@ -12,7 +11,7 @@
 #include "allocators.h"
 #include "serialize.h"
 #include "uint256.h"
-#include "util.h"
+#include "hash.h"
 
 #include <openssl/ec.h> // for EC_KEY definition
 
@@ -100,7 +99,7 @@ public:
 };
 
 
-// secure_allocator is defined in serialize.h
+// secure_allocator is defined in allocators.h
 // CPrivKey is a serialized private key, with all parameters included (279 bytes)
 typedef std::vector<unsigned char, secure_allocator<unsigned char> > CPrivKey;
 // CSecret is a serialization of just the secret parameter (32 bytes)
@@ -114,9 +113,8 @@ protected:
     bool fSet;
     bool fCompressedPubKey;
 
-    void SetCompressedPubKey();
-
 public:
+    void SetCompressedPubKey(bool fCompressed = true);
 
     void Reset();
 

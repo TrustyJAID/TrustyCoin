@@ -1,0 +1,29 @@
+src/*.exe
+src/trustycoin
+src/trustycoind
+src/test_trustycoin
+.*.swp
+*.*~*
+*.bak
+*.rej
+*.orig
+*.o
+*.patch
+.trustycoin
+
+# Compilation and Qt preprocessor part
+*.qm
+Makefile
+trustycoin-qt
+
+# Resources cpp
+qrc_*.cpp
+
+# Qt creator
+*.pro.user
+
+# Mac specific
+.DS_Store
+build
+
+!src/leveldb-*/Makefile

@@ -227,12 +227,12 @@ void runCommand(std::string strCommand);
 
 inline std::string i64tostr(int64 n)
 {
-    return strprintf("%"PRI64d, n);
+    return strprintf( "%"PRI64d, n);
 }
 
 inline std::string itostr(int n)
 {
-    return strprintf("%d", n);
+    return strprintf( "%d", n);
 }
 
 inline int64 atoi64(const char* psz)

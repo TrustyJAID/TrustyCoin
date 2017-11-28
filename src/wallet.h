@@ -459,7 +459,7 @@ public:
             WriteOrderPos(pthis->nOrderPos, pthis->mapValue);
 
             if (nTimeSmart)
-                pthis->mapValue["timesmart"] = strprintf("%u", nTimeSmart);
+                pthis->mapValue["timesmart"] = strprintf( "%u", nTimeSmart);
         }
 
         nSerSize += SerReadWrite(s, *(CMerkleTx*)this, nType, nVersion,ser_action);
@@ -705,12 +705,12 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString().substr(0,10).c_str(), i, nDepth, FormatMoney(tx->vout[i].nValue).c_str());
+        return strprintf( "COutput(%s, %d, %d) [%s]", tx->GetHash().ToString().substr(0,10).c_str(), i, nDepth, FormatMoney(tx->vout[i].nValue).c_str());
     }
 
     void print() const
     {
-        printf("%s\n", ToString().c_str());
+        printf( "%s\n", ToString().c_str());
     }
 };
 

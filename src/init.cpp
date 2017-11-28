@@ -106,7 +106,7 @@ void Shutdown(void* parg)
         delete pwalletMain;
         NewThread(ExitTimeout, NULL);
         Sleep(50);
-        printf("Trustycoin exited\n\n");
+        printf( "Trustycoin exited\n\n");
         fExit = true;
 #ifndef QT_GUI
         // ensure non-UI client gets exited here, but let Trustycoin-Qt reach 'return 0;' in trustycoin.cpp
@@ -358,14 +358,14 @@ void ThreadImport(void *data) {
             FILE *file = OpenBlockFile(pos, true);
             if (!file)
                 break;
-            printf("Reindexing block file blk%05u.dat...\n", (unsigned int)nFile);
+            printf( "Reindexing block file blk%05u.dat...\n", (unsigned int)nFile);
             LoadExternalBlockFile(file, &pos);
             nFile++;
         }
         if (!fRequestShutdown) {
             pblocktree->WriteReindexing(false);
             fReindex = false;
-            printf("Reindexing finished\n");
+            printf( "Reindexing finished\n");
             // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
             InitBlockIndex();
         }
@@ -378,7 +378,7 @@ void ThreadImport(void *data) {
         if (file) {
             CImportingNow imp;
             filesystem::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
-            printf("Importing bootstrap.dat...\n");
+            printf( "Importing bootstrap.dat...\n");
             LoadExternalBlockFile(file);
             RenameOver(pathBootstrap, pathBootstrapOld);
         }
@@ -391,7 +391,7 @@ void ThreadImport(void *data) {
         FILE *file = fopen(path.string().c_str(), "rb");
         if (file) {
             CImportingNow imp;
-            printf("Importing %s...\n", path.string().c_str());
+            printf( "Importing %s...\n", path.string().c_str());
             LoadExternalBlockFile(file);
         }
     }
@@ -585,20 +585,20 @@ bool AppInit2()
 
     if (GetBoolArg("-shrinkdebugfile", !fDebug))
         ShrinkDebugFile();
-    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    printf("Trustycoin version %s (%s)\n", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
-    printf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
+    printf( "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    printf( "Trustycoin version %s (%s)\n", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
+    printf( "Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
     if (!fLogTimestamps)
-        printf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
-    printf("Default data directory %s\n", GetDefaultDataDir().string().c_str());
-    printf("Used data directory %s\n", strDataDir.c_str());
+        printf( "Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
+    printf( "Default data directory %s\n", GetDefaultDataDir().string().c_str());
+    printf( "Used data directory %s\n", strDataDir.c_str());
     std::ostringstream strErrors;
 
     if (fDaemon)
         fprintf(stdout, "Trustycoin server starting\n");
 
     if (nScriptCheckThreads) {
-        printf("Using %u threads for script verification\n", nScriptCheckThreads);
+        printf( "Using %u threads for script verification\n", nScriptCheckThreads);
         for (int i=0; i<nScriptCheckThreads-1; i++)
             NewThread(ThreadScriptCheck, NULL);
     }
@@ -760,17 +760,17 @@ bool AppInit2()
         filesystem::create_directories(blocksDir);
         bool linked = false;
         for (unsigned int i = 1; i < 10000; i++) {
-            filesystem::path source = GetDataDir() / strprintf("blk%04u.dat", i);
+            filesystem::path source = GetDataDir() / strprintf( "blk%04u.dat", i);
             if (!filesystem::exists(source)) break;
-            filesystem::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
+            filesystem::path dest = blocksDir / strprintf( "blk%05u.dat", i-1);
             try {
                 filesystem::create_hard_link(source, dest);
-                printf("Hardlinked %s -> %s\n", source.string().c_str(), dest.string().c_str());
+                printf( "Hardlinked %s -> %s\n", source.string().c_str(), dest.string().c_str());
                 linked = true;
             } catch (filesystem::filesystem_error & e) {
                 // Note: hardlink creation failing is not a disaster, it just means
                 // blocks will get re-downloaded from peers.
-                printf("Error hardlinking blk%04u.dat : %s\n", i, e.what());
+                printf( "Error hardlinking blk%04u.dat : %s\n", i, e.what());
                 break;
             }
         }
@@ -864,10 +864,10 @@ bool AppInit2()
     // As the program has not fully started yet, Shutdown() is possibly overkill.
     if (fRequestShutdown)
     {
-        printf("Shutdown requested. Exiting.\n");
+        printf( "Shutdown requested. Exiting.\n");
         return false;
     }
-    printf(" block index %15"PRI64d"ms\n", GetTimeMillis() - nStart);
+    printf( " block index %15"PRI64d"ms\n", GetTimeMillis() - nStart);
 
     if (GetBoolArg("-printblockindex") || GetBoolArg("-printblocktree"))
     {
@@ -889,12 +889,12 @@ bool AppInit2()
                 block.ReadFromDisk(pindex);
                 block.BuildMerkleTree();
                 block.print();
-                printf("\n");
+                printf( "\n");
                 nFound++;
             }
         }
         if (nFound == 0)
-            printf("No blocks matching %s were found\n", strMatch.c_str());
+            printf( "No blocks matching %s were found\n", strMatch.c_str());
         return false;
     }
 
@@ -921,7 +921,7 @@ bool AppInit2()
         else if (nLoadWalletRet == DB_NEED_REWRITE)
         {
             strErrors << _("Wallet needed to be rewritten: restart Trustycoin to complete") << "\n";
-            printf("%s", strErrors.str().c_str());
+            printf( "%s", strErrors.str().c_str());
             return InitError(strErrors.str());
         }
         else
@@ -933,12 +933,12 @@ bool AppInit2()
         int nMaxVersion = GetArg("-upgradewallet", 0);
         if (nMaxVersion == 0) // the -upgradewallet without argument case
         {
-            printf("Performing wallet upgrade to %i\n", FEATURE_LATEST);
+            printf( "Performing wallet upgrade to %i\n", FEATURE_LATEST);
             nMaxVersion = CLIENT_VERSION;
             pwalletMain->SetMinVersion(FEATURE_LATEST); // permanently upgrade the wallet immediately
         }
         else
-            printf("Allowing wallet upgrade up to %i\n", nMaxVersion);
+            printf( "Allowing wallet upgrade up to %i\n", nMaxVersion);
         if (nMaxVersion < pwalletMain->GetVersion())
             strErrors << _("Cannot downgrade wallet") << "\n";
         pwalletMain->SetMaxVersion(nMaxVersion);
@@ -957,8 +957,8 @@ bool AppInit2()
             strErrors << _("Cannot write default address") << "\n";
     }
 
-    printf("%s", strErrors.str().c_str());
-    printf(" wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
+    printf( "%s", strErrors.str().c_str());
+    printf( " wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
 
     RegisterWallet(pwalletMain);
 
@@ -975,10 +975,10 @@ bool AppInit2()
     if (pindexBest && pindexBest != pindexRescan)
     {
         uiInterface.InitMessage(_("Rescanning..."));
-        printf("Rescanning last %i blocks (from block %i)...\n", pindexBest->nHeight - pindexRescan->nHeight, pindexRescan->nHeight);
+        printf( "Rescanning last %i blocks (from block %i)...\n", pindexBest->nHeight - pindexRescan->nHeight, pindexRescan->nHeight);
         nStart = GetTimeMillis();
         pwalletMain->ScanForWalletTransactions(pindexRescan, true);
-        printf(" rescan      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
+        printf( " rescan      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
     }
 
     // ********************************************************* Step 9: import blocks
@@ -1006,10 +1006,10 @@ bool AppInit2()
     {
         CAddrDB adb;
         if (!adb.Read(addrman))
-            printf("Invalid or missing peers.dat; recreating\n");
+            printf( "Invalid or missing peers.dat; recreating\n");
     }
 
-    printf("Loaded %i addresses from peers.dat  %"PRI64d"ms\n",
+    printf( "Loaded %i addresses from peers.dat  %"PRI64d"ms\n",
            addrman.size(), GetTimeMillis() - nStart);
 
     // ********************************************************* Step 11: start node
@@ -1020,11 +1020,11 @@ bool AppInit2()
     RandAddSeedPerfmon();
 
     //// debug print
-    printf("mapBlockIndex.size() = %"PRIszu"\n",   mapBlockIndex.size());
-    printf("nBestHeight = %d\n",                   nBestHeight);
-    printf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain->setKeyPool.size());
-    printf("mapWallet.size() = %"PRIszu"\n",       pwalletMain->mapWallet.size());
-    printf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain->mapAddressBook.size());
+    printf( "mapBlockIndex.size() = %"PRIszu"\n",   mapBlockIndex.size());
+    printf( "nBestHeight = %d\n",                   nBestHeight);
+    printf( "setKeyPool.size() = %"PRIszu"\n",      pwalletMain->setKeyPool.size());
+    printf( "mapWallet.size() = %"PRIszu"\n",       pwalletMain->mapWallet.size());
+    printf( "mapAddressBook.size() = %"PRIszu"\n",  pwalletMain->mapAddressBook.size());
 
     if (!NewThread(StartNode, NULL))
         InitError(_("Error: could not start node"));

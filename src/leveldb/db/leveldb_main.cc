@@ -36,7 +36,7 @@ bool GuessType(const std::string& fname, FileType* type) {
 class CorruptionReporter : public log::Reader::Reporter {
  public:
   virtual void Corruption(size_t bytes, const Status& status) {
-    printf("corruption: %d bytes; %s\n",
+    printf( "corruption: %d bytes; %s\n",
             static_cast<int>(bytes),
             status.ToString().c_str());
   }
@@ -56,7 +56,7 @@ bool PrintLogContents(Env* env, const std::string& fname,
   Slice record;
   std::string scratch;
   while (reader.ReadRecord(&record, &scratch)) {
-    printf("--- offset %llu; ",
+    printf( "--- offset %llu; ",
            static_cast<unsigned long long>(reader.LastRecordOffset()));
     (*func)(record);
   }
@@ -71,12 +71,12 @@ class WriteBatchItemPrinter : public WriteBatch::Handler {
   uint64_t sequence_;
 
   virtual void Put(const Slice& key, const Slice& value) {
-    printf("  put '%s' '%s'\n",
+    printf( "  put '%s' '%s'\n",
            EscapeString(key).c_str(),
            EscapeString(value).c_str());
   }
   virtual void Delete(const Slice& key) {
-    printf("  del '%s'\n",
+    printf( "  del '%s'\n",
            EscapeString(key).c_str());
   }
 };
@@ -86,18 +86,18 @@ class WriteBatchItemPrinter : public WriteBatch::Handler {
 // found in a kLogFile.
 static void WriteBatchPrinter(Slice record) {
   if (record.size() < 12) {
-    printf("log record length %d is too small\n",
+    printf( "log record length %d is too small\n",
            static_cast<int>(record.size()));
     return;
   }
   WriteBatch batch;
   WriteBatchInternal::SetContents(&batch, record);
-  printf("sequence %llu\n",
+  printf( "sequence %llu\n",
          static_cast<unsigned long long>(WriteBatchInternal::Sequence(&batch)));
   WriteBatchItemPrinter batch_item_printer;
   Status s = batch.Iterate(&batch_item_printer);
   if (!s.ok()) {
-    printf("  error: %s\n", s.ToString().c_str());
+    printf( "  error: %s\n", s.ToString().c_str());
   }
 }
 
@@ -111,10 +111,10 @@ static void VersionEditPrinter(Slice record) {
   VersionEdit edit;
   Status s = edit.DecodeFrom(record);
   if (!s.ok()) {
-    printf("%s\n", s.ToString().c_str());
+    printf( "%s\n", s.ToString().c_str());
     return;
   }
-  printf("%s", edit.DebugString().c_str());
+  printf( "%s", edit.DebugString().c_str());
 }
 
 bool DumpDescriptor(Env* env, const std::string& fname) {
@@ -149,7 +149,7 @@ bool DumpTable(Env* env, const std::string& fname) {
   for (iter->SeekToFirst(); iter->Valid(); iter->Next()) {
     ParsedInternalKey key;
     if (!ParseInternalKey(iter->key(), &key)) {
-      printf("badkey '%s' => '%s'\n",
+      printf( "badkey '%s' => '%s'\n",
              EscapeString(iter->key()).c_str(),
              EscapeString(iter->value()).c_str());
     } else {
@@ -163,7 +163,7 @@ bool DumpTable(Env* env, const std::string& fname) {
         snprintf(kbuf, sizeof(kbuf), "%d", static_cast<int>(key.type));
         type = kbuf;
       }
-      printf("'%s' @ %8llu : %s => '%s'\n",
+      printf( "'%s' @ %8llu : %s => '%s'\n",
              EscapeString(key.user_key).c_str(),
              static_cast<unsigned long long>(key.sequence),
              type,
@@ -172,7 +172,7 @@ bool DumpTable(Env* env, const std::string& fname) {
   }
   s = iter->status();
   if (!s.ok()) {
-    printf("iterator error: %s\n", s.ToString().c_str());
+    printf( "iterator error: %s\n", s.ToString().c_str());
   }
 
   delete iter;

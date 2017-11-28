@@ -23,7 +23,7 @@ namespace Checkpoints
     //
     static MapCheckpoints mapCheckpoints =
         boost::assign::map_list_of
-        ( 0, uint256("0x4a0e8724f8e199540765da8bff5c4d7ea4f75ab976ffc2c12617356e91ce82a3"))
+        ( 0, uint256("0x00000000d17f40f27018966e6b5b6d26a7e7828f6dc6b026b967f585ef2da24b"))
         ;
 
     static MapCheckpoints mapCheckpointsTestnet =
@@ -49,7 +49,7 @@ namespace Checkpoints
         if (!GetBoolArg("-checkpoints", true))
             return 0;
 
-        MapCheckpoints& checkpoints = (fTestNet ? mapCheckpointsTestnet : mapCheckpoints);
+        // MapCheckpoints& checkpoints = (fTestNet ? mapCheckpointsTestnet : mapCheckpoints);
 
         // return checkpoints.rbegin()->first;
         return 0;
@@ -60,7 +60,7 @@ namespace Checkpoints
         if (!GetBoolArg("-checkpoints", true))
             return NULL;
 
-        MapCheckpoints& checkpoints = (fTestNet ? mapCheckpointsTestnet : mapCheckpoints);
+        // MapCheckpoints& checkpoints = (fTestNet ? mapCheckpointsTestnet : mapCheckpoints);
 
         BOOST_REVERSE_FOREACH(const MapCheckpoints::value_type& i, checkpoints)
         {

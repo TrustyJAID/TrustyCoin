@@ -60,7 +60,7 @@ namespace Checkpoints
         if (!GetBoolArg("-checkpoints", true))
             return NULL;
 
-        // MapCheckpoints& checkpoints = (fTestNet ? mapCheckpointsTestnet : mapCheckpoints);
+        /* MapCheckpoints& checkpoints = (fTestNet ? mapCheckpointsTestnet : mapCheckpoints);
 
         BOOST_REVERSE_FOREACH(const MapCheckpoints::value_type& i, checkpoints)
         {
@@ -69,7 +69,7 @@ namespace Checkpoints
             if (t != mapBlockIndex.end())
                 // return t->second;
             return NULL;
-        }
+        }*/
         return NULL;
     }
 }

@@ -157,7 +157,7 @@ void RandAddSeedPerfmon()
     {
         RAND_add(pdata, nSize, nSize/100.0);
         OPENSSL_cleanse(pdata, nSize);
-        printf( "RandAddSeed() %lu bytes\n", nSize);
+        printf ( " RandAddSeed() %lu bytes\n", nSize);
     }
 #endif
 }
@@ -351,7 +351,7 @@ bool error(const char *format, ...)
     va_start(arg_ptr, format);
     std::string str = vstrprintf(format, arg_ptr);
     va_end(arg_ptr);
-    printf( "ERROR: %s\n", str.c_str());
+    printf ( " ERROR: %s\n", str.c_str());
     return false;
 }
 
@@ -383,7 +383,7 @@ string FormatMoney(int64 n, bool fPlus)
     int64 n_abs = (n > 0 ? n : -n);
     int64 quotient = n_abs/COIN;
     int64 remainder = n_abs%COIN;
-    string str = strprintf( "%"PRI64d".%08"PRI64d, quotient, remainder);
+    string str = strprintf ( " %"PRI64d".%08"PRI64d, quotient, remainder);
 
     // Right-trim excess zeros before the decimal point:
     int nTrim = 0;
@@ -985,13 +985,13 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
 void LogException(std::exception* pex, const char* pszThread)
 {
     std::string message = FormatException(pex, pszThread);
-    printf( "\n%s", message.c_str());
+    printf ( " \n%s", message.c_str());
 }
 
 void PrintException(std::exception* pex, const char* pszThread)
 {
     std::string message = FormatException(pex, pszThread);
-    printf( "\n\n************************\n%s\n", message.c_str());
+    printf ( " \n\n************************\n%s\n", message.c_str());
     fprintf(stderr, "\n\n************************\n%s\n", message.c_str());
     strMiscWarning = message;
     throw;
@@ -1000,7 +1000,7 @@ void PrintException(std::exception* pex, const char* pszThread)
 void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 {
     std::string message = FormatException(pex, pszThread);
-    printf( "\n\n************************\n%s\n", message.c_str());
+    printf ( " \n\n************************\n%s\n", message.c_str());
     fprintf(stderr, "\n\n************************\n%s\n", message.c_str());
     strMiscWarning = message;
 }
@@ -1234,7 +1234,7 @@ void AddTimeData(const CNetAddr& ip, int64 nTime)
 
     // Add data
     vTimeOffsets.input(nOffsetSample);
-    printf( "Added time data, samples %d, offset %+"PRI64d" (%+"PRI64d" minutes)\n", vTimeOffsets.size(), nOffsetSample, nOffsetSample/60);
+    printf ( " Added time data, samples %d, offset %+"PRI64d" (%+"PRI64d" minutes)\n", vTimeOffsets.size(), nOffsetSample, nOffsetSample/60);
     if (vTimeOffsets.size() >= 5 && vTimeOffsets.size() % 2 == 1)
     {
         int64 nMedian = vTimeOffsets.median();
@@ -1262,17 +1262,17 @@ void AddTimeData(const CNetAddr& ip, int64 nTime)
                     fDone = true;
                     string strMessage = _("Warning: Please check that your computer's date and time are correct! If your clock is wrong Trustycoin will not work properly.");
                     strMiscWarning = strMessage;
-                    printf( "*** %s\n", strMessage.c_str());
+                    printf ( " *** %s\n", strMessage.c_str());
                     uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_WARNING);
                 }
             }
         }
         if (fDebug) {
             BOOST_FOREACH(int64 n, vSorted)
-                printf( "%+"PRI64d"  ", n);
-            printf( "|  ");
+                printf ( " %+"PRI64d"  ", n);
+            printf ( " |  ");
         }
-        printf( "nTimeOffset = %+"PRI64d"  (%+"PRI64d" minutes)\n", nTimeOffset, nTimeOffset/60);
+        printf ( " nTimeOffset = %+"PRI64d"  (%+"PRI64d" minutes)\n", nTimeOffset, nTimeOffset/60);
     }
 }
 
@@ -1286,9 +1286,9 @@ void AddTimeData(const CNetAddr& ip, int64 nTime)
 string FormatVersion(int nVersion)
 {
     if (nVersion%100 == 0)
-        return strprintf( "%d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100);
+        return strprintf ( " %d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100);
     else
-        return strprintf( "%d.%d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100, nVersion%100);
+        return strprintf ( " %d.%d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100, nVersion%100);
 }
 
 string FormatFullVersion()
@@ -1320,7 +1320,7 @@ boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
         return fs::path(pszPath);
     }
 
-    printf( "SHGetSpecialFolderPathA() failed, could not obtain requested path.\n");
+    printf ( " SHGetSpecialFolderPathA() failed, could not obtain requested path.\n");
     return fs::path("");
 }
 #endif
@@ -1340,7 +1340,7 @@ boost::filesystem::path GetTempPath() {
     path = boost::filesystem::path("/tmp");
 #endif
     if (path.empty() || !boost::filesystem::is_directory(path)) {
-        printf( "GetTempPath(): failed to find temp path\n");
+        printf ( " GetTempPath(): failed to find temp path\n");
         return boost::filesystem::path("");
     }
     return path;
@@ -1351,7 +1351,7 @@ void runCommand(std::string strCommand)
 {
     int nErr = ::system(strCommand.c_str());
     if (nErr)
-        printf( "runCommand error: system(%s) returned %d\n", strCommand.c_str(), nErr);
+        printf ( " runCommand error: system(%s) returned %d\n", strCommand.c_str(), nErr);
 }
 
 void RenameThread(const char* name)
@@ -1381,7 +1381,7 @@ bool NewThread(void(*pfn)(void*), void* parg)
     {
         boost::thread(pfn, parg); // thread detaches when out of scope
     } catch(boost::thread_resource_error &e) {
-        printf( "Error creating thread: %s\n", e.what());
+        printf ( " Error creating thread: %s\n", e.what());
         return false;
     }
     return true;

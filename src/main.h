@@ -306,12 +306,12 @@ public:
 
     std::string ToString() const
     {
-        return strprintf( "COutPoint(%s, %u)", hash.ToString().substr(0,10).c_str(), n);
+        return strprintf ( " COutPoint(%s, %u)", hash.ToString().substr(0,10).c_str(), n);
     }
 
     void print() const
     {
-        printf( "%s\n", ToString().c_str());
+        printf ( " %s\n", ToString().c_str());
     }
 };
 
@@ -378,18 +378,18 @@ public:
         str += "CTxIn(";
         str += prevout.ToString();
         if (prevout.IsNull())
-            str += strprintf( ", coinbase %s", HexStr(scriptSig).c_str());
+            str += strprintf ( " , coinbase %s", HexStr(scriptSig).c_str());
         else
-            str += strprintf( ", scriptSig=%s", scriptSig.ToString().substr(0,24).c_str());
+            str += strprintf ( " , scriptSig=%s", scriptSig.ToString().substr(0,24).c_str());
         if (nSequence != std::numeric_limits<unsigned int>::max())
-            str += strprintf( ", nSequence=%u", nSequence);
+            str += strprintf ( " , nSequence=%u", nSequence);
         str += ")";
         return str;
     }
 
     void print() const
     {
-        printf( "%s\n", ToString().c_str());
+        printf ( " %s\n", ToString().c_str());
     }
 };
 
@@ -453,12 +453,12 @@ public:
     {
         if (scriptPubKey.size() < 6)
             return "CTxOut(error)";
-        return strprintf( "CTxOut(nValue=%"PRI64d".%08"PRI64d", scriptPubKey=%s)", nValue / COIN, nValue % COIN, scriptPubKey.ToString().substr(0,30).c_str());
+        return strprintf ( " CTxOut(nValue=%"PRI64d".%08"PRI64d", scriptPubKey=%s)", nValue / COIN, nValue % COIN, scriptPubKey.ToString().substr(0,30).c_str());
     }
 
     void print() const
     {
-        printf( "%s\n", ToString().c_str());
+        printf ( " %s\n", ToString().c_str());
     }
 };
 
@@ -639,7 +639,7 @@ public:
     std::string ToString() const
     {
         std::string str;
-        str += strprintf( "CTransaction(hash=%s, ver=%d, vin.size=%"PRIszu", vout.size=%"PRIszu", nLockTime=%u)\n",
+        str += strprintf ( " CTransaction(hash=%s, ver=%d, vin.size=%"PRIszu", vout.size=%"PRIszu", nLockTime=%u)\n",
             GetHash().ToString().substr(0,10).c_str(),
             nVersion,
             vin.size(),
@@ -654,7 +654,7 @@ public:
 
     void print() const
     {
-        printf( "%s", ToString().c_str());
+        printf ( " %s", ToString().c_str());
     }
 
 
@@ -1467,7 +1467,7 @@ public:
 
     void print() const
     {
-        printf( "CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
+        printf ( " CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
             BlockHashStr(GetHash()).c_str(),
             nVersion,
             BlockHashStr(hashPrevBlock).c_str(),
@@ -1476,13 +1476,13 @@ public:
             vtx.size());
         for (unsigned int i = 0; i < vtx.size(); i++)
         {
-            printf( "  ");
+            printf ( "   ");
             vtx[i].print();
         }
-        printf( "  vMerkleTree: ");
+        printf ( "   vMerkleTree: ");
         for (unsigned int i = 0; i < vMerkleTree.size(); i++)
-            printf( "%s ", vMerkleTree[i].ToString().substr(0,10).c_str());
-        printf( "\n");
+            printf ( " %s ", vMerkleTree[i].ToString().substr(0,10).c_str());
+        printf ( " \n");
     }
 
 
@@ -1549,7 +1549,7 @@ public:
      }
 
      std::string ToString() const {
-         return strprintf( "CBlockFileInfo(blocks=%u, size=%u, heights=%u..%u, time=%s..%s)", nBlocks, nSize, nHeightFirst, nHeightLast, DateTimeStrFormat("%Y-%m-%d", nTimeFirst).c_str(), DateTimeStrFormat("%Y-%m-%d", nTimeLast).c_str());
+         return strprintf ( " CBlockFileInfo(blocks=%u, size=%u, heights=%u..%u, time=%s..%s)", nBlocks, nSize, nHeightFirst, nHeightLast, DateTimeStrFormat("%Y-%m-%d", nTimeFirst).c_str(), DateTimeStrFormat("%Y-%m-%d", nTimeLast).c_str());
      }
 
      // update statistics (does not update nSize)
@@ -1779,7 +1779,7 @@ public:
 
     std::string ToString() const
     {
-        return strprintf( "CBlockIndex(pprev=%p, pnext=%p, nHeight=%d, merkle=%s, hashBlock=%s)",
+        return strprintf ( " CBlockIndex(pprev=%p, pnext=%p, nHeight=%d, merkle=%s, hashBlock=%s)",
             pprev, pnext, nHeight,
             hashMerkleRoot.ToString().substr(0,10).c_str(),
             BlockHashStr(GetBlockHash()).c_str());
@@ -1787,7 +1787,7 @@ public:
 
     void print() const
     {
-        printf( "%s\n", ToString().c_str());
+        printf ( " %s\n", ToString().c_str());
     }
 };
 
@@ -1861,7 +1861,7 @@ public:
     {
         std::string str = "CDiskBlockIndex(";
         str += CBlockIndex::ToString();
-        str += strprintf( "\n                hashBlock=%s, hashPrev=%s)",
+        str += strprintf ( " \n                hashBlock=%s, hashPrev=%s)",
             GetBlockHash().ToString().c_str(),
             BlockHashStr(hashPrev).c_str());
         return str;
@@ -1869,7 +1869,7 @@ public:
 
     void print() const
     {
-        printf( "%s\n", ToString().c_str());
+        printf ( " %s\n", ToString().c_str());
     }
 };
 

@@ -305,7 +305,7 @@ public:
         // the key is the earliest time the request can be sent
         int64& nRequestTime = mapAlreadyAskedFor[inv];
         if (fDebugNet)
-            printf( "askfor %s   %"PRI64d" (%s)\n", inv.ToString().c_str(), nRequestTime, DateTimeStrFormat("%H:%M:%S", nRequestTime/1000000).c_str());
+            printf ( " askfor %s   %"PRI64d" (%s)\n", inv.ToString().c_str(), nRequestTime, DateTimeStrFormat("%H:%M:%S", nRequestTime/1000000).c_str());
 
         // Make sure not to reuse time indexes to keep things in the same order
         int64 nNow = (GetTime() - 1) * 1000000;
@@ -331,7 +331,7 @@ public:
         vSend << CMessageHeader(pszCommand, 0);
         nMessageStart = vSend.size();
         if (fDebug)
-            printf( "sending: %s ", pszCommand);
+            printf ( " sending: %s ", pszCommand);
     }
 
     // TODO: Document the precondition of this function.  Is cs_vSend locked?
@@ -345,7 +345,7 @@ public:
         LEAVE_CRITICAL_SECTION(cs_vSend);
 
         if (fDebug)
-            printf( "(aborted)\n");
+            printf ( " (aborted)\n");
     }
 
     // TODO: Document the precondition of this function.  Is cs_vSend locked?
@@ -353,7 +353,7 @@ public:
     {
         if (mapArgs.count("-dropmessagestest") && GetRand(atoi(mapArgs["-dropmessagestest"])) == 0)
         {
-            printf( "dropmessages DROPPING SEND MESSAGE\n");
+            printf ( " dropmessages DROPPING SEND MESSAGE\n");
             AbortMessage();
             return;
         }
@@ -373,7 +373,7 @@ public:
         memcpy((char*)&vSend[nHeaderStart] + CMessageHeader::CHECKSUM_OFFSET, &nChecksum, sizeof(nChecksum));
 
         if (fDebug) {
-            printf( "(%d bytes)\n", nSize);
+            printf ( " (%d bytes)\n", nSize);
         }
 
         nHeaderStart = -1;

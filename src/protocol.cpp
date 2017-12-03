@@ -68,7 +68,7 @@ bool CMessageHeader::IsValid() const
     // Message size
     if (nMessageSize > MAX_SIZE)
     {
-        printf( "CMessageHeader::IsValid() : (%s, %u bytes) nMessageSize > MAX_SIZE\n", GetCommand().c_str(), nMessageSize);
+        printf ( " CMessageHeader::IsValid() : (%s, %u bytes) nMessageSize > MAX_SIZE\n", GetCommand().c_str(), nMessageSize);
         return false;
     }
 
@@ -119,7 +119,7 @@ CInv::CInv(const std::string& strType, const uint256& hashIn)
         }
     }
     if (i == ARRAYLEN(ppszTypeName))
-        throw std::out_of_range(strprintf( "CInv::CInv(string, uint256) : unknown type '%s'", strType.c_str()));
+        throw std::out_of_range(strprintf ( " CInv::CInv(string, uint256) : unknown type '%s'", strType.c_str()));
     hash = hashIn;
 }
 
@@ -136,22 +136,22 @@ bool CInv::IsKnownType() const
 const char* CInv::GetCommand() const
 {
     if (!IsKnownType())
-        throw std::out_of_range(strprintf( "CInv::GetCommand() : type=%d unknown type", type));
+        throw std::out_of_range(strprintf ( " CInv::GetCommand() : type=%d unknown type", type));
     return ppszTypeName[type];
 }
 
 std::string CInv::ToString() const
 {
     if (type == MSG_BLOCK)
-        return strprintf( "%s %s", GetCommand(), BlockHashStr(hash).c_str());
+        return strprintf ( " %s %s", GetCommand(), BlockHashStr(hash).c_str());
     if (type == MSG_TX)
-        return strprintf( "%s %s", GetCommand(), hash.ToString().substr(0,10).c_str());
+        return strprintf ( " %s %s", GetCommand(), hash.ToString().substr(0,10).c_str());
 
-    return strprintf( "%s %s", GetCommand(), hash.ToString().substr(0,20).c_str());
+    return strprintf ( " %s %s", GetCommand(), hash.ToString().substr(0,20).c_str());
 }
 
 void CInv::print() const
 {
-    printf( "CInv(%s)\n", ToString().c_str());
+    printf ( " CInv(%s)\n", ToString().c_str());
 }
 

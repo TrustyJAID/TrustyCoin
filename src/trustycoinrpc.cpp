@@ -40,7 +40,7 @@ void ThreadRPCServer3(void* parg);
 
 static inline unsigned short GetDefaultRPCPort()
 {
-    return GetBoolArg("-testnet", false) ? 36327 : 36329;
+    return GetBoolArg("-testnet", false) ? 19292 : 19292;
 }
 
 Object JSONRPCError(int code, const string& message)
@@ -64,7 +64,7 @@ void RPCTypeCheck(const Array& params,
         const Value& v = params[i];
         if (!((v.type() == t) || (fAllowNull && (v.type() == null_type))))
         {
-            string err = strprintf( "Expected type %s, got %s",
+            string err = strprintf ( " Expected type %s, got %s",
                                    Value_type_name[t], Value_type_name[v.type()]);
             throw JSONRPCError(RPC_TYPE_ERROR, err);
         }
@@ -80,11 +80,11 @@ void RPCTypeCheck(const Object& o,
     {
         const Value& v = find_value(o, t.first);
         if (!fAllowNull && v.type() == null_type)
-            throw JSONRPCError(RPC_TYPE_ERROR, strprintf( "Missing %s", t.first.c_str()));
+            throw JSONRPCError(RPC_TYPE_ERROR, strprintf ( " Missing %s", t.first.c_str()));
 
         if (!((v.type() == t.second) || (fAllowNull && (v.type() == null_type))))
         {
-            string err = strprintf( "Expected type %s for %s, got %s",
+            string err = strprintf ( " Expected type %s for %s, got %s",
                                    Value_type_name[t.second], t.first.c_str(), Value_type_name[v.type()]);
             throw JSONRPCError(RPC_TYPE_ERROR, err);
         }
@@ -154,7 +154,7 @@ string CRPCTable::help(string strCommand) const
         }
     }
     if (strRet == "")
-        strRet = strprintf( "help: unknown command: %s\n", strCommand.c_str());
+        strRet = strprintf ( " help: unknown command: %s\n", strCommand.c_str());
     strRet = strRet.substr(0,strRet.size()-1);
     return strRet;
 }
@@ -320,7 +320,7 @@ string rfc1123Time()
 static string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
 {
     if (nStatus == HTTP_UNAUTHORIZED)
-        return strprintf( "HTTP/1.0 401 Authorization Required\r\n"
+        return strprintf ( " HTTP/1.0 401 Authorization Required\r\n"
             "Date: %s\r\n"
             "Server: trustycoin-json-rpc/%s\r\n"
             "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
@@ -668,7 +668,7 @@ void ThreadRPCServer(void* parg)
         vnThreadsRunning[THREAD_RPCLISTENER]--;
         PrintException(NULL, "ThreadRPCServer()");
     }
-    printf( "ThreadRPCServer exited\n");
+    printf ( " ThreadRPCServer exited\n");
 }
 
 // Forward declaration required for RPCListen
@@ -740,7 +740,7 @@ static void RPCAcceptHandler(boost::shared_ptr< basic_socket_acceptor<Protocol, 
 
     // start HTTP client thread
     else if (!NewThread(ThreadRPCServer3, conn)) {
-        printf( "Failed to create RPC server client thread\n");
+        printf ( " Failed to create RPC server client thread\n");
         delete conn;
     }
 
@@ -749,7 +749,7 @@ static void RPCAcceptHandler(boost::shared_ptr< basic_socket_acceptor<Protocol, 
 
 void ThreadRPCServer2(void* parg)
 {
-    printf( "ThreadRPCServer started\n");
+    printf ( " ThreadRPCServer started\n");
 
     strRPCUserColonPass = mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"];
     if ((mapArgs["-rpcpassword"] == "") ||
@@ -790,12 +790,12 @@ void ThreadRPCServer2(void* parg)
         filesystem::path pathCertFile(GetArg("-rpcsslcertificatechainfile", "server.cert"));
         if (!pathCertFile.is_complete()) pathCertFile = filesystem::path(GetDataDir()) / pathCertFile;
         if (filesystem::exists(pathCertFile)) context.use_certificate_chain_file(pathCertFile.string());
-        else printf( "ThreadRPCServer ERROR: missing server certificate file %s\n", pathCertFile.string().c_str());
+        else printf ( " ThreadRPCServer ERROR: missing server certificate file %s\n", pathCertFile.string().c_str());
 
         filesystem::path pathPKFile(GetArg("-rpcsslprivatekeyfile", "server.pem"));
         if (!pathPKFile.is_complete()) pathPKFile = filesystem::path(GetDataDir()) / pathPKFile;
         if (filesystem::exists(pathPKFile)) context.use_private_key_file(pathPKFile.string(), ssl::context::pem);
-        else printf( "ThreadRPCServer ERROR: missing server private key file %s\n", pathPKFile.string().c_str());
+        else printf ( " ThreadRPCServer ERROR: missing server private key file %s\n", pathPKFile.string().c_str());
 
         string strCiphers = GetArg("-rpcsslciphers", "TLSv1+HIGH:!SSLv2:!aNULL:!eNULL:!AH:!3DES:@STRENGTH");
         SSL_CTX_set_cipher_list(context.impl(), strCiphers.c_str());
@@ -905,7 +905,7 @@ void JSONRequest::parse(const Value& valRequest)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Method must be a string");
     strMethod = valMethod.get_str();
     if (strMethod != "getwork" && strMethod != "getblocktemplate")
-        printf( "ThreadRPCServer method=%s\n", strMethod.c_str());
+        printf ( " ThreadRPCServer method=%s\n", strMethod.c_str());
 
     // Parse params
     Value valParams = find_value(request, "params");
@@ -995,7 +995,7 @@ void ThreadRPCServer3(void* parg)
         }
         if (!HTTPAuthorized(mapHeaders))
         {
-            printf( "ThreadRPCServer incorrect password attempt from %s\n", conn->peer_address_to_string().c_str());
+            printf ( " ThreadRPCServer incorrect password attempt from %s\n", conn->peer_address_to_string().c_str());
             /* Deter brute-forcing short passwords.
                If this results in a DOS the user really
                shouldn't have their RPC port exposed.*/
@@ -1129,7 +1129,7 @@ Object CallRPC(const string& strMethod, const Array& params)
     if (nStatus == HTTP_UNAUTHORIZED)
         throw runtime_error("incorrect rpcuser or rpcpassword (authorization failed)");
     else if (nStatus >= 400 && nStatus != HTTP_BAD_REQUEST && nStatus != HTTP_NOT_FOUND && nStatus != HTTP_INTERNAL_SERVER_ERROR)
-        throw runtime_error(strprintf( "server returned HTTP error %d", nStatus));
+        throw runtime_error(strprintf ( " server returned HTTP error %d", nStatus));
     else if (strReply.empty())
         throw runtime_error("no response from server");
 
@@ -1310,7 +1310,7 @@ int main(int argc, char *argv[])
     {
         if (argc >= 2 && string(argv[1]) == "-server")
         {
-            printf( "server ready\n");
+            printf ( " server ready\n");
             ThreadRPCServer(NULL);
         }
         else

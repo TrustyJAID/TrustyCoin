@@ -36,7 +36,7 @@ void CDBEnv::EnvShutdown()
     fDbEnvInit = false;
     int ret = dbenv.close(0);
     if (ret != 0)
-        printf( "EnvShutdown exception: %s (%d)\n", DbEnv::strerror(ret), ret);
+        printf ( " EnvShutdown exception: %s (%d)\n", DbEnv::strerror(ret), ret);
     if (!fMockDb)
         DbEnv(0).remove(strPath.c_str(), 0);
 }
@@ -69,7 +69,7 @@ bool CDBEnv::Open(const boost::filesystem::path& path)
     filesystem::path pathLogDir = path / "database";
     filesystem::create_directory(pathLogDir);
     filesystem::path pathErrorFile = path / "db.log";
-    printf( "dbenv.open LogDir=%s ErrorFile=%s\n", pathLogDir.string().c_str(), pathErrorFile.string().c_str());
+    printf ( " dbenv.open LogDir=%s ErrorFile=%s\n", pathLogDir.string().c_str(), pathErrorFile.string().c_str());
 
     unsigned int nEnvFlags = 0;
     if (GetBoolArg("-privdb", true))
@@ -112,7 +112,7 @@ void CDBEnv::MakeMock()
     if (fShutdown)
         throw runtime_error("CDBEnv::MakeMock(): during shutdown");
 
-    printf( "CDBEnv::MakeMock()\n");
+    printf ( " CDBEnv::MakeMock()\n");
 
     dbenv.set_cachesize(1, 0, 1);
     dbenv.set_lg_bsize(10485760*4);
@@ -131,7 +131,7 @@ void CDBEnv::MakeMock()
                      DB_PRIVATE,
                      S_IRUSR | S_IWUSR);
     if (ret > 0)
-        throw runtime_error(strprintf( "CDBEnv::MakeMock(): error %d opening database environment", ret));
+        throw runtime_error(strprintf ( " CDBEnv::MakeMock(): error %d opening database environment", ret));
 
     fDbEnvInit = true;
     fMockDb = true;
@@ -169,7 +169,7 @@ bool CDBEnv::Salvage(std::string strFile, bool fAggressive,
     int result = db.verify(strFile.c_str(), NULL, &strDump, flags);
     if (result != 0)
     {
-        printf( "ERROR: db salvage failed\n");
+        printf ( " ERROR: db salvage failed\n");
         return false;
     }
 
@@ -240,7 +240,7 @@ CDB::CDB(const char *pszFile, const char* pszMode) :
                 DbMpoolFile*mpf = pdb->get_mpf();
                 ret = mpf->set_flags(DB_MPOOL_NOFILE, 1);
                 if (ret != 0)
-                    throw runtime_error(strprintf( "CDB() : failed to configure for no temp file backing for database %s", pszFile));
+                    throw runtime_error(strprintf ( " CDB() : failed to configure for no temp file backing for database %s", pszFile));
             }
 
             ret = pdb->open(NULL,      // Txn pointer
@@ -256,7 +256,7 @@ CDB::CDB(const char *pszFile, const char* pszMode) :
                 pdb = NULL;
                 --bitdb.mapFileUseCount[strFile];
                 strFile = "";
-                throw runtime_error(strprintf( "CDB() : can't open database file %s, error %d", pszFile, ret));
+                throw runtime_error(strprintf ( " CDB() : can't open database file %s, error %d", pszFile, ret));
             }
 
             if (fCreate && !Exists(string("version")))
@@ -340,7 +340,7 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                 bitdb.mapFileUseCount.erase(strFile);
 
                 bool fSuccess = true;
-                printf( "Rewriting %s...\n", strFile.c_str());
+                printf ( " Rewriting %s...\n", strFile.c_str());
                 string strFileRes = strFile + ".rewrite";
                 { // surround usage of db with extra {}
                     CDB db(strFile.c_str(), "r");
@@ -354,7 +354,7 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                                             0);
                     if (ret > 0)
                     {
-                        printf( "Cannot create database file %s\n", strFileRes.c_str());
+                        printf ( " Cannot create database file %s\n", strFileRes.c_str());
                         fSuccess = false;
                     }
 
@@ -410,7 +410,7 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                         fSuccess = false;
                 }
                 if (!fSuccess)
-                    printf( "Rewriting of %s FAILED!\n", strFileRes.c_str());
+                    printf ( " Rewriting of %s FAILED!\n", strFileRes.c_str());
                 return fSuccess;
             }
         }
@@ -425,7 +425,7 @@ void CDBEnv::Flush(bool fShutdown)
     int64 nStart = GetTimeMillis();
     // Flush log data to the actual data file
     //  on all files that are not in use
-    printf( "Flush(%s)%s\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started");
+    printf ( " Flush(%s)%s\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started");
     if (!fDbEnvInit)
         return;
     {
@@ -435,23 +435,23 @@ void CDBEnv::Flush(bool fShutdown)
         {
             string strFile = (*mi).first;
             int nRefCount = (*mi).second;
-            printf( "%s refcount=%d\n", strFile.c_str(), nRefCount);
+            printf ( " %s refcount=%d\n", strFile.c_str(), nRefCount);
             if (nRefCount == 0)
             {
                 // Move log data to the dat file
                 CloseDb(strFile);
-                printf( "%s checkpoint\n", strFile.c_str());
+                printf ( " %s checkpoint\n", strFile.c_str());
                 dbenv.txn_checkpoint(0, 0, 0);
-                printf( "%s detach\n", strFile.c_str());
+                printf ( " %s detach\n", strFile.c_str());
                 if (!fMockDb)
                     dbenv.lsn_reset(strFile.c_str(), 0);
-                printf( "%s closed\n", strFile.c_str());
+                printf ( " %s closed\n", strFile.c_str());
                 mapFileUseCount.erase(mi++);
             }
             else
                 mi++;
         }
-        printf( "DBFlush(%s)%s ended %15"PRI64d"ms\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started", GetTimeMillis() - nStart);
+        printf ( " DBFlush(%s)%s ended %15"PRI64d"ms\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started", GetTimeMillis() - nStart);
         if (fShutdown)
         {
             char** listp;
@@ -489,7 +489,7 @@ bool CAddrDB::Write(const CAddrMan& addr)
     // Generate random temporary filename
     unsigned short randv = 0;
     RAND_bytes((unsigned char *)&randv, sizeof(randv));
-    std::string tmpfn = strprintf( "peers.dat.%04x", randv);
+    std::string tmpfn = strprintf ( " peers.dat.%04x", randv);
 
     // serialize addresses, checksum data up to that point, then append csum
     CDataStream ssPeers(SER_DISK, CLIENT_VERSION);
